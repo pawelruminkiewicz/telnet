@@ -3,6 +3,7 @@ package put.sk;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -46,7 +47,10 @@ public class Controller {
 
     private  Connection connection;
 
+
     public void connectToServer(MouseEvent mouseEvent) throws IOException {
+        ScrollBar scrollBarv = (ScrollBar)textArea.lookup(".scroll-bar:vertical");
+        scrollBarv.setDisable(false);
         if(connection==null) {
             String port = editPort.getText();
             String ip = editIp.getText();
