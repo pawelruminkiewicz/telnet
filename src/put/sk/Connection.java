@@ -55,6 +55,7 @@ public class Connection {
         do{
             System.out.println(reader.ready());
             val = reader.readLine();
+            System.out.println(val);
             messageFromServer=messageFromServer+val+'\n';
             }
         while(reader.ready());

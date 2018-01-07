@@ -11,11 +11,13 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define SERVER_PORT 1236
 #define QUEUE_SIZE 5
-
+#define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__)
 struct data_t
 {
 int cfd;
@@ -64,14 +66,41 @@ int main(int argc, char* argv[])
    struct data_t* t_data=malloc(sizeof(struct data_t));
 	int slt = sizeof(t_data->caddr);
 	int new_socket;
+	int pid;
+	int new_fd;
+	FILE* alternative_stream_for_server;
+	new_fd = dup(STDERR_FILENO);
+	alternative_stream_for_server = fdopen(new_fd, "w");
+	setbuf(alternative_stream_for_server, NULL); // sin buffering
+	
    while(new_socket = accept(server_socket_descriptor, (struct sockaddr*)&t_data->caddr,&slt))
    {
 	   char ip[15];
 	   memcpy(ip,inet_ntoa((struct in_addr)t_data->caddr.sin_addr),15);
-		printf("++New client connected:%s\n",ip);
+		printf("++New client connected: %s\n",ip);
+		if(pid = fork()) printf("Ch: %d\n",pid);
+		else{
+			if(dup2(new_socket, 1) == -1) ;//to do 
+			if(dup2(new_socket, 2) == -1) ;//to do
+		while(1){
+			int userDisconnected;
+			char command[100];
+			memset(command,0,sizeof(command));
+			userDisconnected=read(new_socket,command,100);
+			if(!userDisconnected){
+				commForServer("[%s-%d] User disconeccted..\n",ip,pid);
+			break;}
+			commForServer("[%s-%d] command: %s\n",ip,pid,command);
+			system(command);
+			commForServer("[%s-%d] last command complete\n",ip,pid);
+		}
+		close(new_socket);
+		exit(0);
+		}
+		
 		
    }
-
+	fclose(alternative_stream_for_server);
    close(server_socket_descriptor);
    return(0);
 }
