@@ -11,25 +11,20 @@ import java.io.IOException;
 
 public class Main extends Application {
 
-    FXMLLoader loader;
-
-
+    private FXMLLoader loader;
+    private Controller controller;
 
     public FXMLLoader getLoader() {
         return loader;
     }
 
-    static Controller controller;
-    public static Controller getController() {
-        return controller;
-    }
+
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         loader = new FXMLLoader(getClass().getResource("app.fxml"));
         Parent root = loader.load();
         controller = loader.getController();
-
         primaryStage.setTitle("Telnet console");
         primaryStage.setScene(new Scene(root, 720, 500));
         primaryStage.show();
@@ -38,6 +33,7 @@ public class Main extends Application {
         controller.getEditPort().setText("1236");
         controller.getEditCommand().setText("ls -l|wc -c");
     }
+
     @Override
     public void stop() throws IOException {
         controller.exitApplication();
@@ -45,9 +41,5 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-
-
-
-
     }
 }

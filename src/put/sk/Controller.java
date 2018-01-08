@@ -1,6 +1,7 @@
 package put.sk;
 
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
@@ -12,7 +13,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 
-public class Controller {
+public class Controller implements Runnable{
 
     @FXML
     private Button buttonSend;
@@ -22,6 +23,21 @@ public class Controller {
 
     @FXML
     private TextField editPort;
+
+    @FXML
+    private TextField editIp;
+
+    @FXML
+    private TextField editCommand;
+
+    @FXML
+    private TextArea textArea;
+
+    private Connection connection;
+
+    private Thread watek;
+
+    private String messageFromServer = "";
 
     public TextField getEditPort() {
         return editPort;
@@ -35,61 +51,70 @@ public class Controller {
         return editCommand;
     }
 
-    @FXML
-    private TextField editIp;
-
-    @FXML
-    private TextField editCommand;
-
-
-    @FXML
-    private TextArea textArea;
-
-    private  Connection connection;
-
 
     public void connectToServer(MouseEvent mouseEvent) throws IOException {
-        ScrollBar scrollBarv = (ScrollBar)textArea.lookup(".scroll-bar:vertical");
+        ScrollBar scrollBarv = (ScrollBar) textArea.lookup(".scroll-bar:vertical");
         scrollBarv.setDisable(false);
-        if(connection==null) {
+        if (connection == null) {
             String port = editPort.getText();
             String ip = editIp.getText();
             connection = new Connection();
             connection.startConnection(port, ip);
             buttonConnect.setText("Disconnect");
             buttonSend.setDisable(false);
-        }
-        else{
+        } else {
+            watek.stop();
             connection.stopConnection();
             buttonConnect.setText("Connect");
             connection = null;
             buttonSend.setDisable(true);
-
         }
+        watek = new Thread(this);
+        watek.setDaemon(true);
+        watek.start();
     }
-
 
     public void sendCommandToServer(MouseEvent mouseEvent) throws IOException {
         String command = editCommand.getText();
         connection.sendCommand(command);
+        editCommand.clear();
     }
 
     @FXML
     public void exitApplication() throws IOException {
-        if(connection!=null)
-            connection.stopConnection();
+        if (connection != null){
+            watek.stop();
+            connection.stopConnection();}
     }
 
     public void enterOnSendCommand(KeyEvent key) throws IOException {
-        if (key.getCode().equals(KeyCode.ENTER)&& !buttonSend.isDisable())
-        {
+        if (key.getCode().equals(KeyCode.ENTER) && !buttonSend.isDisable()) {
             String command = editCommand.getText();
             connection.sendCommand(command);
+            editCommand.clear();
         }
     }
 
-
     public TextArea getTextArea() {
         return textArea;
+    }
+
+    @Override
+    public void run() {
+        try {
+            int value;
+            while (!Thread.currentThread().isInterrupted()) {
+                char val;
+                value = connection.getReader().read();
+                val = (char) value;
+                messageFromServer = messageFromServer + val;
+                //System.out.println(messageFromServer);
+                Platform.runLater(() -> textArea.setText(messageFromServer));
+            }}
+
+
+         catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
