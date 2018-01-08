@@ -2,6 +2,8 @@ package put.sk;
 
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
@@ -13,7 +15,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 
-public class Controller implements Runnable{
+public class Controller implements Runnable {
 
     @FXML
     private Button buttonSend;
@@ -68,10 +70,12 @@ public class Controller implements Runnable{
             buttonConnect.setText("Connect");
             connection = null;
             buttonSend.setDisable(true);
+            return;
         }
         watek = new Thread(this);
         watek.setDaemon(true);
         watek.start();
+        textArea.textProperty().addListener((ChangeListener<Object>) (observable, oldValue, newValue) -> textArea.setScrollTop(Double.MAX_VALUE));
     }
 
     public void sendCommandToServer(MouseEvent mouseEvent) throws IOException {
@@ -82,9 +86,10 @@ public class Controller implements Runnable{
 
     @FXML
     public void exitApplication() throws IOException {
-        if (connection != null){
+        if (connection != null) {
             watek.stop();
-            connection.stopConnection();}
+            connection.stopConnection();
+        }
     }
 
     public void enterOnSendCommand(KeyEvent key) throws IOException {
@@ -107,14 +112,12 @@ public class Controller implements Runnable{
                 char val;
                 value = connection.getReader().read();
                 val = (char) value;
-                messageFromServer = messageFromServer + val;
-                //System.out.println(messageFromServer);
-                Platform.runLater(() -> textArea.setText(messageFromServer));
-            }}
-
-
-         catch (IOException e) {
+                Platform.runLater(() -> textArea.appendText(String.valueOf(val)));
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
 }
