@@ -50,7 +50,8 @@ public class Connection  {
     }
 
     public void sendCommand(String command) throws IOException {
-        sockOut.write(command.getBytes());
+        char enter = 13;
+        sockOut.write(new String(command+enter).getBytes());
 
     }
 
