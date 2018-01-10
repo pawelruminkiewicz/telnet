@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SERVER_PORT 1232//port serwera
+#define SERVER_PORT 1231//port serwera
 #define QUEUE_SIZE 5 //ilosc dostepnych miejsc dla uzytkownikow na serwerze
 #define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__) //makro do wyrzucania informacji przez serwer
 

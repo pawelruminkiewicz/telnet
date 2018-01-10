@@ -4,14 +4,13 @@ package put.sk;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 
 import java.io.IOException;
 import java.security.Key;
@@ -39,11 +38,10 @@ public class Controller implements Runnable {
     @FXML
     private TextArea textArea;
 
-    private Connection connection;
+    private Connection connection = null;
 
     private Thread watek;
 
-    private String messageFromServer = "";
 
     public TextField getEditPort() {
         return editPort;
@@ -58,14 +56,18 @@ public class Controller implements Runnable {
     }
 
 
-    public void connectToServer(MouseEvent mouseEvent) throws IOException {
+    public void connectToServer() throws IOException {
         ScrollBar scrollBarv = (ScrollBar) textArea.lookup(".scroll-bar:vertical");
         scrollBarv.setDisable(false);
         if (connection == null) {
             String port = editPort.getText();
             String ip = editIp.getText();
             connection = new Connection();
-            connection.startConnection(port, ip);
+            boolean isConnected = connection.startConnection(port, ip);
+            if (!isConnected) {
+                connection = null;
+                return;
+            }
             buttonConnect.setText("Disconnect");
             buttonSend.setDisable(false);
         } else {
@@ -74,6 +76,7 @@ public class Controller implements Runnable {
             buttonConnect.setText("Connect");
             connection = null;
             buttonSend.setDisable(true);
+            textArea.clear();
             return;
         }
         watek = new Thread(this);
@@ -82,13 +85,21 @@ public class Controller implements Runnable {
         textArea.textProperty().addListener((ChangeListener<Object>) (observable, oldValue, newValue) -> textArea.setScrollTop(Double.MAX_VALUE));
     }
 
-    public void sendCommandToServer(MouseEvent mouseEvent) throws IOException {
+    public void sendCommandToServer() throws IOException {
         String command = editCommand.getText();
-        char ctrlC = 3;
-        if (editCommand.getText().charAt(0) == 3) {
-            connection.sendCommand(String.valueOf(ctrlC));
+
+        if (command.equals("exit") ) {
+            System.out.println("asaaa");
+            connection.sendCommand("exit");
+            watek.stop();
+            connection.stopConnection();
+            buttonConnect.setText("Connect");
+            connection = null;
+            buttonSend.setDisable(true);
+            textArea.clear();
+        } else {
+            connection.sendCommand(command);
         }
-        else connection.sendCommand(command);
         editCommand.clear();
     }
 
@@ -102,15 +113,10 @@ public class Controller implements Runnable {
 
     public void enterOnSendCommand(KeyEvent key) throws IOException {
         if (key.getCode().equals(KeyCode.ENTER) && !buttonSend.isDisable()) {
-            String command = editCommand.getText();
-            connection.sendCommand(command);
-            editCommand.clear();
+            sendCommandToServer();
         }
     }
 
-    public TextArea getTextArea() {
-        return textArea;
-    }
 
     @Override
     public void run() {
