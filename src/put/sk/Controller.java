@@ -14,6 +14,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
+import java.security.Key;
+
+import static javafx.scene.input.KeyCode.C;
+import static javafx.scene.input.KeyCode.CONTROL;
 
 public class Controller implements Runnable {
 
@@ -80,7 +84,11 @@ public class Controller implements Runnable {
 
     public void sendCommandToServer(MouseEvent mouseEvent) throws IOException {
         String command = editCommand.getText();
-        connection.sendCommand(command);
+        char ctrlC = 3;
+        if (editCommand.getText().charAt(0) == 3) {
+            connection.sendCommand(String.valueOf(ctrlC));
+        }
+        else connection.sendCommand(command);
         editCommand.clear();
     }
 

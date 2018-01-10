@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SERVER_PORT 1230//port serwera
+#define SERVER_PORT 1232//port serwera
 #define QUEUE_SIZE 5 //ilosc dostepnych miejsc dla uzytkownikow na serwerze
 #define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__) //makro do wyrzucania informacji przez serwer
 
@@ -21,12 +21,7 @@ struct data_t {
 
 
 int main(int argc, char *argv[]) {
-		
-
     printf("Server start..\n");
-	//execvp("bash","bash -c echo hello world!");
-	
-	//printf("aa\n");
     int server_socket_descriptor;
     int bind_result;
     int listen_result;
@@ -72,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 
     FILE *alternative_stream_for_server;
-    //new_fd = dup(STDERR_FILENO);
+    new_fd = dup(STDERR_FILENO);
     alternative_stream_for_server = fdopen(new_fd, "w");
     setbuf(alternative_stream_for_server, NULL);
 
@@ -86,11 +81,10 @@ int main(int argc, char *argv[]) {
         {
             printf("PID: %d\n", pid);
         } else {
-            //duplikacja deskryptorow, przekierowujaca standardowe wyjscie
+            //duplikacja deskryptorow
              if (dup2(new_socket, STDIN_FILENO) == -1) {
                 commForServer("--Error with duplicate output desc..\n");
             }
-			
             if (dup2(new_socket, STDOUT_FILENO) == -1) {
                 commForServer("--Error with duplicate output desc..\n");
             }
@@ -100,20 +94,11 @@ int main(int argc, char *argv[]) {
 			close(new_socket);
             //petla klienta
             while (1) {
-                int userDisconnected;
-                char command[100];
-                memset(command, 0, sizeof(command)); //czyszczenie tablicy przechowujacej komende
-                //userDisconnected = read(new_socket, command, 100); //sprawdzanie ile znakow odczytano
-                
                 execl("/bin/bash", "/bin/bash","-i", (char *)0);
-				//system(command); //wywolywanie procesu systemowego
-                commForServer("[%s] last command complete\n", ip);
             }
             close(new_socket); //zamykanie gniazda klienta
             exit(0);
         }
-
-
     }
     fclose(alternative_stream_for_server);//zamykanie deskryptora dla informacji serwera
     close(server_socket_descriptor); //zamykanie deskryptora socketu serwera
