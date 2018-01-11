@@ -11,7 +11,6 @@
 #include <pty.h>
 #include <utmp.h>
 
-#define SERVER_PORT 1236//port serwera
 #define QUEUE_SIZE 5 //ilosc dostepnych miejsc dla uzytkownikow na serwerze
 #define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__) //makro do wyrzucania informacji przez serwer
 
@@ -30,6 +29,8 @@ void childend(int signo)
 
 
 int main(int argc, char *argv[]) {
+	int SERVER_PORT = 1236;
+	if(argc > 1) SERVER_PORT = atoi(argv[1]);
     printf("Server start..\n");
     int server_socket_descriptor;
     int bind_result;
