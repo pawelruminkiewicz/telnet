@@ -47,8 +47,11 @@ public class Connection  {
         catch (SocketException e){
             return false;
         }
+        catch (UnknownHostException e){
+            return false;
+        }
         catch (IOException exc) {
-            // inne wyjątki we/wy
+
         }
         return true;
     }
