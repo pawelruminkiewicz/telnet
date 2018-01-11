@@ -1,5 +1,4 @@
-
-##Temat zadania: Zdalna konsola typu telnet
+## Temat zadania: Zdalna konsola typu telnet
 **1. Opis protokołu komunikacyjnego**  
 Komunikacja pomiędzy serwerem a klientami odbywa się poprzez połączenie sieciowe. Serwer po połączeniu uruchamia dedykowany dla klienta proces  powłoki bash. Klient po połączeniu z serwerem rozpoczyna wysyłanie komend oraz wątek odczytu i prezentowania odpowiedzi na obiekcie typu TextArea.
 
