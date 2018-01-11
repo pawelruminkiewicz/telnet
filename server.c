@@ -8,8 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pty.h>
+#include <utmp.h>
 
-#define SERVER_PORT 1231//port serwera
+#define SERVER_PORT 1236//port serwera
 #define QUEUE_SIZE 5 //ilosc dostepnych miejsc dla uzytkownikow na serwerze
 #define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__) //makro do wyrzucania informacji przez serwer
 
@@ -18,6 +20,13 @@ struct data_t {
     int cfd;
     struct sockaddr_in caddr;
 };
+
+void childend(int signo)
+{
+   pid_t pid;
+   pid = wait(NULL);
+   printf("\t[Client %d disconnected]\n", pid);
+}
 
 
 int main(int argc, char *argv[]) {
@@ -28,6 +37,8 @@ int main(int argc, char *argv[]) {
     char reuse_addr_val = 1;
     struct sockaddr_in server_address;
 
+	signal(SIGCHLD, childend);
+	   
     //inicjalizacja gniazda serwera
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = PF_INET;
@@ -72,15 +83,16 @@ int main(int argc, char *argv[]) {
     setbuf(alternative_stream_for_server, NULL);
 
     //glowna petla programu
-    while ((new_socket = accept(server_socket_descriptor, (struct sockaddr *) &t_data->caddr, &slt)) != 0) {
+    while (1) {
+		new_socket = accept(server_socket_descriptor, (struct sockaddr *) &t_data->caddr, &slt);
         char ip[15];
         memcpy(ip, inet_ntoa((struct in_addr) t_data->caddr.sin_addr),
                15); //kopiowanie adresu ip uzytkownika do tablicy char
-        printf("++New client connected: %s\n", ip);
-        if ((pid = fork()) != 0) //tworzenie procesu potomnego
-        {
-            printf("PID: %d\n", pid);
-        } else {
+        printf("[New client connected: %s]\n", ip);
+
+		pid=forkpty(&new_fd, NULL, NULL, NULL);
+		if (pid==0)
+       {
             //duplikacja deskryptorow
              if (dup2(new_socket, STDIN_FILENO) == -1) {
                 commForServer("--Error with duplicate output desc..\n");
@@ -92,11 +104,7 @@ int main(int argc, char *argv[]) {
                 commForServer("--Error with duplicate error desc..\n");
             }
 			close(new_socket);
-            //petla klienta
-            while (1) {
-                execl("/bin/bash", "/bin/bash","-i", (char *)0);
-            }
-            close(new_socket); //zamykanie gniazda klienta
+            execl("/bin/bash", "/bin/bash","-i", (char *)0);
             exit(0);
         }
     }

@@ -32,7 +32,7 @@ public class Connection  {
 
 
 
-    public boolean startConnection(String _port, String _ip) {
+    public  boolean startConnection(String _port, String _ip) {
 
         try {
 
@@ -55,7 +55,7 @@ public class Connection  {
 
     public void sendCommand(String command) throws IOException {
         char enter = 13;
-        sockOut.write(new String(command+enter).getBytes());
+        sockOut.write((command + enter).getBytes());
 
     }
 
