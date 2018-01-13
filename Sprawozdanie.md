@@ -22,8 +22,7 @@ Pliki źródłowe:
 uruchamiając plik makefile_windows.bat z konsoli cmd: ``makefile_windows.bat``
 lub otwierając projekt w InteliJ IDEA
 
-* **Uruchomienie serwera:** serwer włączamy uruchamiając w terminalu plik: ``./serwer_telnet``
-* **Uruchomienie klienta:** ``java -jar out\telnet_client.jar``
+* **Uruchomienie serwera:** serwer włączamy uruchamiając w terminalu plik: ``./serwer_telnet`` * **Uruchomienie klienta:** ``java -jar out\telnet_client.jar``
 
 
 **Obsługa programów:**
