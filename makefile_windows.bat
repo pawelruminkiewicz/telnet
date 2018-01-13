@@ -1,3 +1,4 @@
+mkdir out
 cd src
 javac put\sk\Connection.java put\sk\Controller.java put\sk\Main.java  -d ..\out
 copy put\sk\app.fxml ..\out\put\sk
