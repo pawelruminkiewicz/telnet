@@ -22,6 +22,10 @@ Pliki źródłowe:
 uruchamiając plik makefile_windows.bat z konsoli cmd: ``makefile_windows.bat``
 lub otwierając projekt w InteliJ IDEA
 
+* **Uruchomienie serwera:** serwer włączamy uruchamiając w terminalu plik: ``./serwer_telnet``
+* **Uruchomienie klienta:** ``java -jar out\telnet_client.jar``
+
+
 **Obsługa programów:**
-* **Serwer:** Serwer uruchamiamy z parametrem oznaczającym port, na którym ma pracować. Jeżeli zostanie uruchomiony bezparametrowo będzie pracował na porcie 1236. Po uruchomieniu serwer nie wymaga uwagi. Makefile uruchamia serwer na porcie standardowym.
+* **Serwer:** Serwer uruchamiamy z parametrem oznaczającym port, na którym ma pracować. Jeżeli zostanie uruchomiony bezparametrowo będzie pracował na porcie 1236. Po uruchomieniu serwer nie wymaga uwagi. 
 * **Klient:** Po uruchomieniu aplikacji, należy wprowadzić adres serwera oraz port, a następnie kliknąć Connect. Aplikacja połączy się z serwerem. Komendy należy wprowadzać w polu obok przycisku Send command. Komenda może zostać zatwierdzona przyciskiem Send command bądź enterem po jej wprowadzeniu. Zakończenie pracy z serwerem jest możliwe poprzez przycisk Disconnect bądź wydanie komendy exit.
