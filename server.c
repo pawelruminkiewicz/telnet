@@ -11,7 +11,7 @@
 #include <pty.h>
 #include <utmp.h>
 
-#define QUEUE_SIZE 5 //ilosc dostepnych miejsc dla uzytkownikow na serwerze
+#define QUEUE_SIZE 5 
 #define commForServer(...) fprintf(alternative_stream_for_server, __VA_ARGS__) //makro do wyrzucania informacji przez serwer
 
 //struktura potrzebna do polaczenia
@@ -29,9 +29,12 @@ void childend(int signo)
 
 
 int main(int argc, char *argv[]) {
-	int SERVER_PORT = 1236;
+	int SERVER_PORT = 1236; // jezeli port nie zostanie podany, serwer uzyje portu 1236
 	if(argc > 1) SERVER_PORT = atoi(argv[1]);
+	
     printf("Server start..\n");
+	
+	//deklaracja zmiennych
     int server_socket_descriptor;
     int bind_result;
     int listen_result;
@@ -68,15 +71,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-//deklaracja zmiennych   
+	//deklaracja zmiennych   
     struct data_t *t_data = malloc(sizeof(struct data_t));
     socklen_t
-    slt = (socklen_t)
-    sizeof(t_data->caddr); //rozmiar struktury sockaddr_in
+    slt = (socklen_t) sizeof(t_data->caddr);
     int new_socket;
     int pid;
     int new_fd;
-
 
     FILE *alternative_stream_for_server;
     new_fd = dup(STDERR_FILENO);
@@ -87,11 +88,10 @@ int main(int argc, char *argv[]) {
     while (1) {
 		new_socket = accept(server_socket_descriptor, (struct sockaddr *) &t_data->caddr, &slt);
         char ip[15];
-        memcpy(ip, inet_ntoa((struct in_addr) t_data->caddr.sin_addr),
-               15); //kopiowanie adresu ip uzytkownika do tablicy char
+        memcpy(ip, inet_ntoa((struct in_addr) t_data->caddr.sin_addr),15); //kopiowanie adresu ip uzytkownika do tablicy char
         printf("[New client connected: %s]\n", ip);
 
-		pid=forkpty(&new_fd, NULL, NULL, NULL);
+		pid=forkpty(&new_fd, NULL, NULL, NULL); //funkcja forkpty dowiazujaca do deskryptora pseudo-terminal
 		if (pid==0)
        {
             //duplikacja deskryptorow
@@ -104,7 +104,11 @@ int main(int argc, char *argv[]) {
             if (dup2(new_socket, STDERR_FILENO) == -1) {
                 commForServer("--Error with duplicate error desc..\n");
             }
+			
+			//zamykanie gniazda klienta
 			close(new_socket);
+			
+			//uruchomienie basha
             execl("/bin/bash", "/bin/bash","-i", (char *)0);
             exit(0);
         }

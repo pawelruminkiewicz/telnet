@@ -1,10 +1,13 @@
 package put.sk;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
 /**
@@ -17,6 +20,7 @@ public class Main extends Application {
 
     /**
      * Metoda ładująca aplikację
+     *
      * @param primaryStage scena
      * @throws Exception exception
      */
@@ -28,10 +32,16 @@ public class Main extends Application {
         primaryStage.setTitle("Telnet console");
         primaryStage.setScene(new Scene(root, 900, 500));
         primaryStage.show();
+        controller.getEditPort().textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                controller.getEditPort().setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
     }
 
     /**
      * Metoda zamykająca aplikację
+     *
      * @throws IOException exception
      */
     @Override
@@ -41,6 +51,7 @@ public class Main extends Application {
 
     /**
      * Metoda main
+     *
      * @param args argumenty
      */
     public static void main(String[] args) {
